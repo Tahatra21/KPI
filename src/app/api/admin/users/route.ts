@@ -14,10 +14,15 @@ export async function GET() {
 
         const allUsers = await db.select().from(users);
 
-        // Remove passwords before sending to client
+        // Remove passwords and normalize field names before sending to client
         const safeUsers = allUsers.map(u => {
-            const { passwordHash, ...safe } = u;
-            return safe;
+            const { passwordHash, reportingToId, ...safe } = u;
+            return {
+                ...safe,
+                reportingToId,
+                // Normalize to snake_case so frontend User type is satisfied
+                reporting_to_id: reportingToId ?? null,
+            };
         });
 
         return NextResponse.json({ users: safeUsers });

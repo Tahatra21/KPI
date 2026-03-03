@@ -215,14 +215,28 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
                         </div>
                         {level !== "0" && (
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="reportingTo" className="text-right">Lapor Ke (ID)</Label>
-                                <Input
-                                    id="reportingTo"
-                                    value={reportingToId}
-                                    onChange={(e) => setReportingToId(e.target.value)}
-                                    className="col-span-3"
-                                    placeholder="Opsional, ID Atasan"
-                                />
+                                <Label htmlFor="reportingTo" className="text-right">Lapor Ke</Label>
+                                <div className="col-span-3">
+                                    <Select
+                                        value={reportingToId || "__none__"}
+                                        onValueChange={(v) => setReportingToId(v === "__none__" ? "" : v)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih atasan..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="__none__">— Tidak Ada Atasan —</SelectItem>
+                                            {allUsers
+                                                .filter((u) => u.id !== editingUser?.id && u.level !== 0)
+                                                .sort((a, b) => a.level - b.level)
+                                                .map((u) => (
+                                                    <SelectItem key={u.id} value={u.id}>
+                                                        [{u.id}] {u.name} — L{u.level}
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         )}
                         {level !== "0" && (
