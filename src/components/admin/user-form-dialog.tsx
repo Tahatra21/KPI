@@ -43,7 +43,8 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
     const [department, setDepartment] = useState(editingUser?.department || "");
     const [position, setPosition] = useState(editingUser?.position || "");
     const [status, setStatus] = useState(editingUser?.status || "active");
-    const [reportingToId, setReportingToId] = useState(editingUser?.reporting_to_id || "");
+    // @ts-ignore - API returns reportingToId, but we might also get it as reporting_to_id from other sources
+    const [reportingToId, setReportingToId] = useState(editingUser?.reportingToId || editingUser?.reporting_to_id || "");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
