@@ -59,14 +59,17 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
     // Auto-generate ID when level changes; also reset reportingToId when level changes
     useEffect(() => {
         if (!level) return;
-        // Reset supervisor selection when level changes (supervisor pool changes)
-        setReportingToId("");
 
-        // If editing and level hasn't changed from original, keep original ID
+        // If editing and level hasn't changed from original, keep all originals intact
         if (isEdit && editingUser && String(editingUser.level) === level) {
             setId(editingUser.id);
+            // @ts-ignore
+            setReportingToId(editingUser.reportingToId || editingUser.reporting_to_id || "");
             return;
         }
+
+        // Level changed (or creating new user) — reset supervisor selection
+        setReportingToId("");
 
         let prefix = "STF";
         if (level === "0") prefix = "ADM";
