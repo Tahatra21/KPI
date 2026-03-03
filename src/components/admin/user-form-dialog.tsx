@@ -212,7 +212,7 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
                                 required
                             />
                         </div>
-                        {isEdit && editingUser?.level !== 0 && (
+                        {level !== "0" && (
                             <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="reportingTo" className="text-right">Lapor Ke (ID)</Label>
                                 <Input
@@ -224,7 +224,7 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
                                 />
                             </div>
                         )}
-                        {isEdit && editingUser?.level !== 0 && (
+                        {level !== "0" && (
                             <div className="grid grid-cols-4 items-center gap-4 mt-2">
                                 <Label className="text-right">Status Akun</Label>
                                 <div className="col-span-3 flex items-center gap-2">
