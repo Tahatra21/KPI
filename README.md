@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KPI Management System v3
 
-## Getting Started
+Modern KPI (Key Performance Indicator) monitoring and tracking system built with Next.js, TailwindCSS, and PostgreSQL (via Drizzle ORM). Contains advanced Role-Based Access Controls (RBAC), multi-tier organizational charts, and full audit trails.
 
-First, run the development server:
+## Database & Tech Stack
 
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: TailwindCSS & shadcn/ui
+- **Database**: PostgreSQL
+- **ORM**: Drizzle ORM
+- **Authentication**: Custom SSR session headers
+
+## Prasyarat Instalasi
+
+Sebelum memulai, pastikan sistem Anda telah menginstal:
+1. [Node.js](https://nodejs.org/en/) (minimal v18.17.0)
+2. [PostgreSQL](https://postgresql.org) Database (Lokal atau Cloud seperti Neon/Supabase)
+3. Akun Github (opsional, jika ingin berkontribusi)
+
+## Panduan Instalasi (How to Deploy / Install)
+
+### 1. Kloning Repositori
+Lakukan *cloning* repositori ini ke komputer Anda.
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Tahatra21/KPI.git
+cd KPI
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependensi (Library)
+Install seluruh pustaka dengan NPM.
+```bash
+npm install
+# atau
+yarn install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Persiapkan Environment (.env)
+Buat fail bernama `.env.local` di root folder proyek ini, dan salin konfigurasi *database* PostgreSQL Anda:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/kpiv3"
+```
+*(Ganti isinya menyesuaikan database Anda)*
 
-## Learn More
+### 4. Men-generate dan Migrasi Skema Database
+Sistem KPI akan membuat otomatis struktur tabel berserta relasinya (Foreign Keys / Alerts / Audit Logs / Dll).
+```bash
+npm run db:generate
+npm run db:migrate
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 5. Seeding Database (Data Uji Coba)
+Agar aplikasi dapat dicoba tanpa mendaftar ulang, sistem ini dilengkapi *dummy data* lengkap dari level 0 (Admin) hingga level 4 (Staff).
+```bash
+npm run db:seed
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Daftar pengguna otomatis / Akses *default*:
+- **Admin**: `ADM001` - `password123`
+- **VP / BOD-1**: `VP001` - `password123`
+- **Manager**: `MGR001` - `password123`
+- **Assistant Manager**: `AM001` - `password123`
+- **Staff**: `STF001` - `password123`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 6. Menjalankan Server (Local Development)
+Jalankan server Node.js pada lingkungan lokal.
+```bash
+npm run dev
+```
+Buka browser Anda dan akses: **http://localhost:3000** 🚀
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Developed & maintained for modern enterprise tracking* 
