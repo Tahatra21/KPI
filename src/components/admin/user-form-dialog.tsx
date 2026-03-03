@@ -241,7 +241,7 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
                                             onValueChange={(v) => setReportingToId(v)}
                                             required
                                         >
-                                            <SelectTrigger>
+                                            <SelectTrigger className="w-full [&>span]:truncate [&>span]:overflow-hidden [&>span]:text-ellipsis">
                                                 <SelectValue placeholder={`Pilih atasan (Level ${supervisorLevel})...`} />
                                             </SelectTrigger>
                                             <SelectContent>
