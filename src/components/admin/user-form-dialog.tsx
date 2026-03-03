@@ -48,9 +48,19 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Auto-generate ID when level changes
+    // Determine which level the supervisor must be from
+    const supervisorLevel = level === "2" ? 1 : level === "3" ? 2 : level === "4" ? 3 : null;
+
+    // Filter users who can be a supervisor for the selected level
+    const supervisorList = supervisorLevel !== null
+        ? allUsers.filter((u) => u.level === supervisorLevel && u.id !== editingUser?.id)
+        : [];
+
+    // Auto-generate ID when level changes; also reset reportingToId when level changes
     useEffect(() => {
         if (!level) return;
+        // Reset supervisor selection when level changes (supervisor pool changes)
+        setReportingToId("");
 
         // If editing and level hasn't changed from original, keep original ID
         if (isEdit && editingUser && String(editingUser.level) === level) {
@@ -213,29 +223,45 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
                                 required
                             />
                         </div>
-                        {level !== "0" && (
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="reportingTo" className="text-right">Lapor Ke</Label>
+                        {/* Lapor Ke — Only for L2, L3, L4 */}
+                        {level !== "0" && level !== "1" && level !== "" && (
+                            <div className="grid grid-cols-4 items-start gap-4">
+                                <Label htmlFor="reportingTo" className="text-right pt-2">Lapor Ke <span className="text-red-500">*</span></Label>
                                 <div className="col-span-3">
-                                    <Select
-                                        value={reportingToId || "__none__"}
-                                        onValueChange={(v) => setReportingToId(v === "__none__" ? "" : v)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih atasan..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="__none__">— Tidak Ada Atasan —</SelectItem>
-                                            {allUsers
-                                                .filter((u) => u.id !== editingUser?.id && u.level !== 0)
-                                                .sort((a, b) => a.level - b.level)
-                                                .map((u) => (
+                                    {supervisorList.length === 0 ? (
+                                        <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+                                            ⚠️ Belum terdapat atasan pada level di atas (Level {supervisorLevel}). Harap hubungi Administrator.
+                                        </div>
+                                    ) : (
+                                        <Select
+                                            value={reportingToId || ""}
+                                            onValueChange={(v) => setReportingToId(v)}
+                                            required
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={`Pilih atasan (Level ${supervisorLevel})...`} />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {supervisorList.map((u) => (
                                                     <SelectItem key={u.id} value={u.id}>
-                                                        [{u.id}] {u.name} — L{u.level}
+                                                        [{u.id}] {u.name} — {u.position}
                                                     </SelectItem>
                                                 ))}
-                                        </SelectContent>
-                                    </Select>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Level {level} melaporkan ke Level {supervisorLevel}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                        {/* Level 1: no supervisor */}
+                        {level === "1" && (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label className="text-right">Lapor Ke</Label>
+                                <div className="col-span-3 text-sm text-muted-foreground italic">
+                                    — Level 1 (VP) adalah level tertinggi, tidak memiliki atasan langsung —
                                 </div>
                             </div>
                         )}
