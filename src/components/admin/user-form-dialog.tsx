@@ -247,7 +247,7 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
                                             <SelectContent>
                                                 {supervisorList.map((u) => (
                                                     <SelectItem key={u.id} value={u.id}>
-                                                        [{u.id}] {u.name} — {u.position}
+                                                        [{u.id}] {u.position}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
