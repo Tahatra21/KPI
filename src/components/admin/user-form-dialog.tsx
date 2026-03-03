@@ -116,6 +116,7 @@ export function UserFormDialog({ isOpen, onClose, onSuccess, editingUser }: User
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify(payload),
             });
 
