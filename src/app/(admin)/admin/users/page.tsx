@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit2, ShieldAlert, Trash2 } from "lucide-react";
 import { UserFormDialog } from "@/components/admin/user-form-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -24,6 +25,7 @@ export default function AdminUsersPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
     const fetchUsers = async () => {
         try {
@@ -64,6 +66,46 @@ export default function AdminUsersPage() {
         u.department.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const toggleSelectAll = () => {
+        if (selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0) {
+            setSelectedUserIds([]);
+        } else {
+            setSelectedUserIds(filteredUsers.map((u) => u.id));
+        }
+    };
+
+    const toggleSelectOne = (id: string) => {
+        setSelectedUserIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Apakah Anda yakin ingin menghapus ${selectedUserIds.length} pengguna terpilih? Tindakan ini tidak dapat dibatalkan.`)) return;
+
+        try {
+            // Delete sequentially or via Promise.all
+            setIsLoading(true);
+            const deletePromises = selectedUserIds.map((id) =>
+                fetch(`/api/admin/users/${id}`, { method: "DELETE", credentials: "include" })
+            );
+
+            const results = await Promise.allSettled(deletePromises);
+            const failedCount = results.filter(r => r.status === "rejected" || (r.status === "fulfilled" && !r.value.ok)).length;
+
+            if (failedCount === 0) {
+                toast.success(`${selectedUserIds.length} pengguna berhasil dihapus`);
+            } else {
+                toast.warning(`${selectedUserIds.length - failedCount} dihapus, ${failedCount} gagal dihapus`);
+            }
+            setSelectedUserIds([]);
+            fetchUsers();
+        } catch (error) {
+            toast.error("Gagal melakukan penghapusan massal");
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -75,10 +117,18 @@ export default function AdminUsersPage() {
                         Kelola akun, role, dan status aktif pengguna dalam sistem.
                     </p>
                 </div>
-                <Button onClick={() => { setEditingUser(null); setIsFormOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Tambah Pengguna
-                </Button>
+                <div className="flex items-center gap-2">
+                    {selectedUserIds.length > 0 && (
+                        <Button onClick={handleBulkDelete} variant="destructive" className="bg-red-600 hover:bg-red-700">
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Hapus {selectedUserIds.length} Terpilih
+                        </Button>
+                    )}
+                    <Button onClick={() => { setEditingUser(null); setIsFormOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Tambah Pengguna
+                    </Button>
+                </div>
             </div>
 
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
@@ -98,6 +148,13 @@ export default function AdminUsersPage() {
                     <Table>
                         <TableHeader className="bg-slate-50 dark:bg-slate-950/50">
                             <TableRow>
+                                <TableHead className="w-12">
+                                    <Checkbox
+                                        checked={selectedUserIds.length > 0 && selectedUserIds.length === filteredUsers.length}
+                                        onCheckedChange={toggleSelectAll}
+                                        aria-label="Select all"
+                                    />
+                                </TableHead>
                                 <TableHead>ID</TableHead>
                                 <TableHead>Nama Pengguna</TableHead>
                                 <TableHead>Email</TableHead>
@@ -110,19 +167,26 @@ export default function AdminUsersPage() {
                         <TableBody>
                             {isLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                                    <TableCell colSpan={8} className="text-center py-8 text-slate-500">
                                         Memuat data...
                                     </TableCell>
                                 </TableRow>
                             ) : filteredUsers.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                                    <TableCell colSpan={8} className="text-center py-8 text-slate-500">
                                         Tidak ada pengguna yang ditemukan.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 filteredUsers.map((user) => (
-                                    <TableRow key={user.id}>
+                                    <TableRow key={user.id} className={selectedUserIds.includes(user.id) ? "bg-indigo-50/50 dark:bg-indigo-900/10" : ""}>
+                                        <TableCell>
+                                            <Checkbox
+                                                checked={selectedUserIds.includes(user.id)}
+                                                onCheckedChange={() => toggleSelectOne(user.id)}
+                                                aria-label={`Select ${user.name}`}
+                                            />
+                                        </TableCell>
                                         <TableCell className="font-medium text-slate-900 dark:text-slate-100">{user.id}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">
