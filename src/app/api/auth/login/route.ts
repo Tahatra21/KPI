@@ -28,7 +28,7 @@ export async function POST(req: Request) {
             httpOnly: true,
             secure: false, // on-premise HTTP
             path: "/",
-            maxAge: 60 * 30, // 30 minutes
+            maxAge: 60 * 60 * 8, // 8 hours
             sameSite: "lax",
         });
 
