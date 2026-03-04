@@ -7,7 +7,7 @@ import { getLevelLabel } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { BarChart3, Lock, Mail, ChevronRight, TrendingUp, Users2, ShieldCheck, Building2 } from "lucide-react";
+import { BarChart3, Lock, Mail, ChevronRight, Building2 } from "lucide-react";
 
 export default function LoginPage() {
     const { login, loginById, allUsers } = useAuth();
@@ -57,11 +57,6 @@ export default function LoginPage() {
         4: { bg: "bg-slate-100", text: "text-slate-600", label: "STF" },
     };
 
-    const stats = [
-        { icon: TrendingUp, label: "KPI Dimonitor", value: "120+" },
-        { icon: Users2, label: "Pengguna Aktif", value: `${allUsers.length}` },
-        { icon: ShieldCheck, label: "Approval Berjenjang", value: "4 Level" },
-    ];
 
     return (
         <div className="min-h-screen flex">
@@ -115,36 +110,47 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    {/* Stats row */}
-                    <div className="grid grid-cols-3 gap-4">
-                        {stats.map(({ icon: Icon, label, value }) => (
-                            <div key={label} className="rounded-xl p-4 border border-white/8"
-                                style={{ background: "rgba(255,255,255,0.04)" }}>
-                                <Icon className="w-5 h-5 text-blue-400 mb-2" />
-                                <p className="text-white font-bold text-lg leading-none">{value}</p>
-                                <p className="text-slate-400 text-xs mt-1">{label}</p>
+                    {/* Animated KPI visualization */}
+                    <div className="relative flex items-center justify-center h-72">
+                        {/* Pulsing rings */}
+                        <div className="absolute w-64 h-64 rounded-full border border-blue-500/10 animate-ping" style={{ animationDuration: "3s" }} />
+                        <div className="absolute w-52 h-52 rounded-full border border-blue-500/15 animate-ping" style={{ animationDuration: "2.5s", animationDelay: "0.3s" }} />
+                        <div className="absolute w-40 h-40 rounded-full border border-blue-500/20 animate-ping" style={{ animationDuration: "2s", animationDelay: "0.6s" }} />
+
+                        {/* Center circle */}
+                        <div className="relative z-10 w-28 h-28 rounded-full flex flex-col items-center justify-center shadow-xl"
+                            style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.25))", border: "1px solid rgba(99,102,241,0.3)" }}>
+                            <BarChart3 className="w-8 h-8 text-blue-400 mb-1" />
+                            <p className="text-white text-xs font-semibold">KPI Live</p>
+                            <div className="flex gap-0.5 mt-1">
+                                {[3, 5, 4, 6, 5, 7, 4].map((h, i) => (
+                                    <div key={i} className="w-1 rounded-full bg-blue-400 opacity-80"
+                                        style={{ height: `${h * 3}px`, animation: `pulse ${1.2 + i * 0.15}s ease-in-out infinite alternate` }} />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Floating metric cards */}
+                        {[
+                            { label: "Achieved", value: "87%", color: "text-emerald-400", delay: "0s", pos: "-top-2 -right-4" },
+                            { label: "On Track", value: "94%", color: "text-blue-400", delay: "0.8s", pos: "top-12 -left-8" },
+                            { label: "KPI Total", value: "120", color: "text-violet-400", delay: "1.6s", pos: "-bottom-2 right-2" },
+                        ].map(({ label, value, color, delay, pos }) => (
+                            <div key={label}
+                                className={`absolute ${pos} px-3 py-2 rounded-xl border border-white/10 backdrop-blur-sm`}
+                                style={{ background: "rgba(255,255,255,0.06)", animation: `float 3s ease-in-out infinite`, animationDelay: delay }}>
+                                <p className={`text-base font-bold ${color}`}>{value}</p>
+                                <p className="text-slate-400 text-xs">{label}</p>
                             </div>
                         ))}
                     </div>
 
-                    {/* Org hierarchy visual */}
-                    <div className="rounded-xl border border-white/8 p-5 space-y-2"
-                        style={{ background: "rgba(255,255,255,0.03)" }}>
-                        <p className="text-slate-400 text-xs font-medium uppercase tracking-widest mb-3">Hierarki Organisasi</p>
-                        {[
-                            { level: "L1", title: "Vice President / BOD", color: "bg-violet-500" },
-                            { level: "L2", title: "General Manager", color: "bg-blue-500" },
-                            { level: "L3", title: "Asst. Manager", color: "bg-cyan-500" },
-                            { level: "L4", title: "Staff", color: "bg-slate-400" },
-                        ].map((row, i) => (
-                            <div key={row.level} className="flex items-center gap-3"
-                                style={{ paddingLeft: `${i * 16}px` }}>
-                                <div className={`w-1.5 h-1.5 rounded-full ${row.color} flex-shrink-0`} />
-                                <span className="text-slate-400 text-xs w-8 font-mono">{row.level}</span>
-                                <span className="text-slate-300 text-xs">{row.title}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <style>{`
+                        @keyframes float {
+                            0%, 100% { transform: translateY(0px); }
+                            50% { transform: translateY(-8px); }
+                        }
+                    `}</style>
                 </div>
 
                 {/* Footer */}
