@@ -7,10 +7,10 @@ import { getLevelLabel } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { BarChart3, Lock, Mail, ChevronRight, Building2 } from "lucide-react";
+import { BarChart3, Lock, Mail, Building2 } from "lucide-react";
 
 export default function LoginPage() {
-    const { login, loginById, allUsers } = useAuth();
+    const { login } = useAuth();
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -30,31 +30,6 @@ export default function LoginPage() {
         } else {
             toast.error("Email atau password salah.");
         }
-    };
-
-    const quickLogin = async (userId: string) => {
-        setLoading(true);
-        const user = await loginById(userId);
-        setLoading(false);
-        if (user) {
-            if (user.level === 0) {
-                router.push("/admin/dashboard");
-            } else {
-                router.push("/dashboard");
-            }
-        }
-    };
-
-    const demoIds = ["VP001", "MGR001", "MGR002", "AM001", "AM002"];
-    const demoAccounts = demoIds
-        .map((id) => allUsers.find((u) => u.id === id))
-        .filter(Boolean) as typeof allUsers;
-
-    const levelBadge: Record<number, { bg: string; text: string; label: string }> = {
-        1: { bg: "bg-violet-100", text: "text-violet-700", label: "VP" },
-        2: { bg: "bg-blue-100", text: "text-blue-700", label: "MGR" },
-        3: { bg: "bg-cyan-100", text: "text-cyan-700", label: "AM" },
-        4: { bg: "bg-slate-100", text: "text-slate-600", label: "STF" },
     };
 
 
@@ -230,48 +205,7 @@ export default function LoginPage() {
                         </Button>
                     </form>
 
-                    {/* Divider */}
-                    <div className="flex items-center gap-3">
-                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-                        <span className="text-xs text-slate-400 font-medium">ATAU AKSES DEMO</span>
-                        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-                    </div>
 
-                    {/* Quick login cards */}
-                    <div className="space-y-2">
-                        {demoAccounts.length === 0 ? (
-                            <div className="text-center py-4 text-sm text-slate-400 animate-pulse">Memuat akun demo...</div>
-                        ) : (
-                            demoAccounts.map((user) => {
-                                const badge = levelBadge[user.level] ?? { bg: "bg-slate-100", text: "text-slate-600", label: "—" };
-                                return (
-                                    <button
-                                        key={user.id}
-                                        onClick={() => quickLogin(user.id)}
-                                        disabled={loading}
-                                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-400 hover:shadow-sm transition-all group cursor-pointer disabled:opacity-50 text-left"
-                                    >
-                                        {/* Avatar */}
-                                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                                            {user.name.charAt(0)}
-                                        </div>
-                                        {/* Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{user.name}</p>
-                                            <p className="text-xs text-slate-400 truncate">{user.position}</p>
-                                        </div>
-                                        {/* Level badge + arrow */}
-                                        <div className="flex items-center gap-2 flex-shrink-0">
-                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${badge.bg} ${badge.text}`}>
-                                                {user.id}
-                                            </span>
-                                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
-                                        </div>
-                                    </button>
-                                );
-                            })
-                        )}
-                    </div>
 
                     {/* Bottom note */}
                     <p className="text-center text-xs text-slate-400">
