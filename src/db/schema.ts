@@ -33,6 +33,8 @@ export const kpis = pgTable("kpis", {
     unit: varchar("unit", { length: 50 }).notNull(),
     weight: decimal("weight", { precision: 5, scale: 2 }).notNull().default("0"),
     target: decimal("target", { precision: 15, scale: 4 }).notNull().default("0"),
+    targetS1: decimal("target_s1", { precision: 15, scale: 4 }).notNull().default("0"),
+    targetS2: decimal("target_s2", { precision: 15, scale: 4 }).notNull().default("0"),
     achievement: decimal("achievement", { precision: 15, scale: 4 }).notNull().default("0"),
     scoringType: scoringTypeEnum("scoring_type").notNull().default("normal"),
     category: kpiCategoryEnum("category"),

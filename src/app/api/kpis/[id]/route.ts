@@ -56,7 +56,16 @@ export async function PUT(req: Request, { params }: Params) {
         if (body.formula !== undefined) updateData.formula = body.formula;
         if (body.unit !== undefined) updateData.unit = body.unit;
         if (body.weight !== undefined) updateData.weight = String(body.weight);
-        if (body.target !== undefined) updateData.target = String(body.target);
+        if (body.target_s1 !== undefined) updateData.targetS1 = String(body.target_s1);
+        if (body.target_s2 !== undefined) updateData.targetS2 = String(body.target_s2);
+        // Recompute total target from semesters if either is updated
+        if (body.target_s1 !== undefined || body.target_s2 !== undefined) {
+            const s1 = body.target_s1 !== undefined ? Number(body.target_s1) : Number(existing.targetS1);
+            const s2 = body.target_s2 !== undefined ? Number(body.target_s2) : Number(existing.targetS2);
+            updateData.target = String(s1 + s2);
+        } else if (body.target !== undefined) {
+            updateData.target = String(body.target);
+        }
         if (body.achievement !== undefined) updateData.achievement = String(body.achievement);
         if (body.scoring_type !== undefined) updateData.scoringType = body.scoring_type;
         if (body.category !== undefined) updateData.category = user.level === 1 ? body.category : null;
@@ -86,6 +95,8 @@ export async function PUT(req: Request, { params }: Params) {
                 unit: updated.unit,
                 weight: Number(updated.weight),
                 target: Number(updated.target),
+                target_s1: Number(updated.targetS1),
+                target_s2: Number(updated.targetS2),
                 achievement: Number(updated.achievement),
                 scoring_type: updated.scoringType,
                 category: updated.category,

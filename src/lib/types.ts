@@ -26,6 +26,8 @@ export type KPI = {
   unit: string;
   weight: number; // 0-100
   target: number;
+  target_s1?: number;
+  target_s2?: number;
   achievement: number;
   status: KPIStatus;
   deadline: string; // ISO date string

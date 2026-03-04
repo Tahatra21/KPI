@@ -40,6 +40,9 @@ export function KPIFormDialog({ open, onClose, existingKPI }: KPIFormDialogProps
     const [unit, setUnit] = useState("");
     const [weight, setWeight] = useState("");
     const [target, setTarget] = useState("");
+    const [targetS1, setTargetS1] = useState("0");
+    const [targetS2, setTargetS2] = useState("0");
+    const computedTarget = (parseFloat(targetS1) || 0) + (parseFloat(targetS2) || 0);
     const [achievement, setAchievement] = useState("");
     const [deadline, setDeadline] = useState("2026-12-31");
     const [parentKpiId, setParentKpiId] = useState<string>("none");
@@ -56,6 +59,8 @@ export function KPIFormDialog({ open, onClose, existingKPI }: KPIFormDialogProps
             setUnit(existingKPI.unit);
             setWeight(String(existingKPI.weight));
             setTarget(String(existingKPI.target));
+            setTargetS1(String(existingKPI.target_s1 ?? 0));
+            setTargetS2(String(existingKPI.target_s2 ?? 0));
             setAchievement(String(existingKPI.achievement));
             setDeadline(existingKPI.deadline);
             setParentKpiId(existingKPI.parent_kpi_id ?? "none");
@@ -108,7 +113,9 @@ export function KPIFormDialog({ open, onClose, existingKPI }: KPIFormDialogProps
                 formula: formula.trim(),
                 unit: unit.trim(),
                 weight: parseFloat(weight) || 0,
-                target: parseFloat(target) || 0,
+                target: computedTarget,
+                target_s1: parseFloat(targetS1) || 0,
+                target_s2: parseFloat(targetS2) || 0,
                 achievement: parseFloat(achievement) || 0,
                 deadline,
                 parent_kpi_id: parentKpiId === "none" ? null : parentKpiId,
@@ -126,7 +133,9 @@ export function KPIFormDialog({ open, onClose, existingKPI }: KPIFormDialogProps
                 formula: formula.trim(),
                 unit: unit.trim(),
                 weight: parseFloat(weight) || 0,
-                target: parseFloat(target) || 0,
+                target: computedTarget,
+                target_s1: parseFloat(targetS1) || 0,
+                target_s2: parseFloat(targetS2) || 0,
                 achievement: parseFloat(achievement) || 0,
                 deadline,
                 status: "Draft" as const,
@@ -231,14 +240,31 @@ export function KPIFormDialog({ open, onClose, existingKPI }: KPIFormDialogProps
                                 />
                             )}
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-sm font-medium text-foreground">Target *</label>
-                            <Input
-                                type="number"
-                                placeholder="Target"
-                                value={target}
-                                onChange={(e) => setTarget(e.target.value)}
-                            />
+                        {/* Target Semester 1 & 2 */}
+                        <div className="col-span-3">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-foreground">Target S1 (Jan–Jun) *</label>
+                                    <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={targetS1}
+                                        onChange={(e) => setTargetS1(e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-foreground">Target S2 (Jul–Des) *</label>
+                                    <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={targetS2}
+                                        onChange={(e) => setTargetS2(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1.5">
+                                Total Target Tahunan: <span className="font-semibold text-foreground">{computedTarget.toLocaleString("id-ID")}</span>
+                            </p>
                         </div>
                     </div>
 
