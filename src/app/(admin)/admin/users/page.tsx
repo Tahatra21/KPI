@@ -26,6 +26,8 @@ export default function AdminUsersPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 5;
 
     const fetchUsers = async () => {
         try {
@@ -66,11 +68,24 @@ export default function AdminUsersPage() {
         u.department.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Pagination
+    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+    const paginatedUsers = filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    // Reset to page 1 when search changes
+    const handleSearch = (q: string) => {
+        setSearchQuery(q);
+        setCurrentPage(1);
+        setSelectedUserIds([]);
+    };
+
     const toggleSelectAll = () => {
-        if (selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0) {
-            setSelectedUserIds([]);
+        const pageIds = paginatedUsers.map((u) => u.id);
+        const allPageSelected = pageIds.every((id) => selectedUserIds.includes(id));
+        if (allPageSelected) {
+            setSelectedUserIds((prev) => prev.filter((id) => !pageIds.includes(id)));
         } else {
-            setSelectedUserIds(filteredUsers.map((u) => u.id));
+            setSelectedUserIds((prev) => [...new Set([...prev, ...pageIds])]);
         }
     };
 
@@ -139,7 +154,7 @@ export default function AdminUsersPage() {
                             placeholder="Cari ID, Nama, atau Divisi..."
                             className="pl-9 bg-slate-50 dark:bg-slate-950"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => handleSearch(e.target.value)}
                         />
                     </div>
                 </div>
@@ -150,9 +165,9 @@ export default function AdminUsersPage() {
                             <TableRow>
                                 <TableHead className="w-12">
                                     <Checkbox
-                                        checked={selectedUserIds.length > 0 && selectedUserIds.length === filteredUsers.length}
+                                        checked={paginatedUsers.length > 0 && paginatedUsers.every((u) => selectedUserIds.includes(u.id))}
                                         onCheckedChange={toggleSelectAll}
-                                        aria-label="Select all"
+                                        aria-label="Select all on page"
                                     />
                                 </TableHead>
                                 <TableHead>ID</TableHead>
@@ -178,7 +193,7 @@ export default function AdminUsersPage() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                filteredUsers.map((user) => (
+                                paginatedUsers.map((user) => (
                                     <TableRow key={user.id} className={selectedUserIds.includes(user.id) ? "bg-indigo-50/50 dark:bg-indigo-900/10" : ""}>
                                         <TableCell>
                                             <Checkbox
@@ -233,6 +248,63 @@ export default function AdminUsersPage() {
                             )}
                         </TableBody>
                     </Table>
+                </div>
+
+                {/* Pagination footer */}
+                <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <p className="text-sm text-slate-500">
+                        Menampilkan {filteredUsers.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredUsers.length)} dari {filteredUsers.length} pengguna
+                        {selectedUserIds.length > 0 && <span className="ml-2 text-indigo-600 font-medium">· {selectedUserIds.length} dipilih</span>}
+                    </p>
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            className="h-8 px-2"
+                        >
+                            «
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="h-8 px-3"
+                        >
+                            ‹ Prev
+                        </Button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <Button
+                                key={page}
+                                variant={page === currentPage ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setCurrentPage(page)}
+                                className={`h-8 w-8 ${page === currentPage ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+                            >
+                                {page}
+                            </Button>
+                        ))}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="h-8 px-3"
+                        >
+                            Next ›
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className="h-8 px-2"
+                        >
+                            »
+                        </Button>
+                    </div>
                 </div>
             </div>
 
